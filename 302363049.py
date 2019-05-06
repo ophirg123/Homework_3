@@ -24,13 +24,13 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
                 if self.leaf is True:
                     # print(self.data, self.binary_frequency)
                     letter_binary_frequency = (self.data, self.binary_frequency)
+                    HuffmanCoding.binary_frequency_dictionary[self.data] = int(self.binary_frequency)
                     return letter_binary_frequency
                 else:
                     self.left.binary_frequency = self.binary_frequency + '0'
                     self.left.search_element()
                     self.right.binary_frequency = self.binary_frequency + '1'
                     self.right.search_element()
-
 
         def file_type_of_given_file_to_compress(path_of_file):
             """ Check type of file: Bin or Text"""
@@ -98,9 +98,13 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
             return node
 
         def create_word_binary_dictionary(trie, dictionary):
-            letter_binary_frequency = (trie[0][0].search_element())
-            print(letter_binary_frequency)
-            # dictionary[letter_binary_frequency[0][0]] = letter_binary_frequency[0][1]
+            trie[0][0].search_element()
+            print(HuffmanCoding.binary_frequency_dictionary)
+            return HuffmanCoding.binary_frequency_dictionary
+
+        def create_compressed_file(compressed_file_path):
+
+
 
         self.input_file_path = input_file_path
         self.given_file_type = file_type_of_given_file_to_compress(self.input_file_path)
@@ -110,13 +114,13 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
         self.word_dictionary = create_word_dictionary()
         self.word_dictionary_list = sorted(self.word_dictionary.items(), key=lambda x: x[1])
         self.coding_dictionary = {}
-        self.binary_frequency_dictionary = {}
+        HuffmanCoding.binary_frequency_dictionary = {}
 
         while len(self.word_dictionary_list) > 1:
             self.node = tree_build(self.word_dictionary_list)
             self.word_dictionary_list = sorted(self.word_dictionary_list, key=lambda x: x[1])
 
-        print(create_word_binary_dictionary(self.word_dictionary_list,self.binary_frequency_dictionary))
+        self.coding_dictionary = create_word_binary_dictionary(self.word_dictionary_list, self.binary_frequency_dictionary)
 
 
     def decompress_file(self, input_file_path):
@@ -128,7 +132,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
 
 if __name__ == '__main__':
     check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\New Text Document.txt')
-    # check1 = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\geo.bin')
+    check1 = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
+    print(check.binary_frequency_dictionary)
 
 
 
