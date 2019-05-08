@@ -116,6 +116,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
         def create_compressed_file(compressed_file_path, file_word_list, coding_dictionary, file_type):
             with open(compressed_file_path, 'wb') as f:
                 coded_pharse = ''
+                start = time.time()
                 if file_type == 'bin':
                     for number in file_word_list:
                             coded_pharse += str(coding_dictionary.get(number))
@@ -123,6 +124,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
                     for word in file_word_list:
                         for l in word:
                             coded_pharse += str(coding_dictionary.get(l))
+                end = time.time()
+                print('The time is: ' + str(end - start))
                 if (8-(len(coded_pharse) % 8)) > 0:
                     complete_to_byte = (8-(len(coded_pharse) % 8))*'0'
                 if self.given_file_type == "bin":
@@ -136,7 +139,9 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
                     coded_pharse[count] = int(i, 2)
                     count += 1
                 arr = bytearray(coded_pharse)
-                f.write(arr)
+
+
+
 
         self.input_file_path = input_file_path
         self.given_file_type = file_type_of_given_file_to_compress(self.input_file_path)
@@ -157,8 +162,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
                 self.node_tree = tree_build_txt(self.word_dictionary_list)
                 self.word_dictionary_list = sorted(self.word_dictionary_list, key=lambda x: x[1])
 
-        self.coding_dictionary = create_word_binary_dictionary(self.word_dictionary_list, self.coding_dictionary)
 
+        self.coding_dictionary = create_word_binary_dictionary(self.word_dictionary_list, self.coding_dictionary)
 
         create_compressed_file(self.compressed_file_path, self.file_word_list, self.coding_dictionary, self.given_file_type)
 
@@ -211,7 +216,11 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
         return self.decompress_file_path
 
     def calculate_entropy(self):
-        pass
+        total_symbols = self.node_tree.frequency
+        entropy = 0.0
+        for freq in self.word_dictionary.values():
+            entropy += (freq/total_symbols)*math.log((freq/total_symbols), 2)
+        return -entropy
 
 
 class Node:
@@ -250,10 +259,15 @@ class Node:
 if __name__ == '__main__':
     import time
     start = time.time()
-    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\fuckthepolic.txt')
-    # check1 = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
-    print(check.decompress_file('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\compressed_file.bin'))
-    # check1.decompress_file('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\compressed_file.bin')
+    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
+    print(check.calculate_entropy())
+    if ((check.calculate_entropy())*(os.path.getsize(check.input_file_path))/8) < os.path.getsize(check.compressed_file_path) and os.path.getsize(check.compressed_file_path) < ((check.calculate_entropy()+1)*(os.path.getsize(check.input_file_path))/8):
+        print("The compression is ok")
+    elif os.path.getsize(check.compressed_file_path) < ((check.calculate_entropy()+1)*(os.path.getsize(check.input_file_path))/8):
+        print("The compression is excellent")
+    else:
+        print("The compression is bad!!!")
+    print(os.path.getsize(check.compressed_file_path))
     end = time.time()
     print(end-start)
 
