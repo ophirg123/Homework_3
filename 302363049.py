@@ -13,9 +13,9 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
         def file_type_of_given_file_to_compress(path_of_file):
             """ Check type of file: Bin or Text"""
             if path_of_file.endswith('.bin'):
-                type = "Bin"
+                type = "bin"
             elif path_of_file.endswith('.txt'):
-                type = "Txt"
+                type = "txt"
             else:
                 raise TypeError('This is not Text file or Bin file')
             return type
@@ -24,7 +24,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
             """ Create a dictionary of the frequency of every letter or byte in a file.
            :param file_path: A string of the file path
            :rtype: A: dictionary"""
-            if self.given_file_type == "Bin":
+            if self.given_file_type == "bin":
                 with open(self.input_file_path, 'rb') as file:
                     self.file_word_string = file.read()
                 for binary_number in self.file_word_string:
@@ -84,7 +84,14 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
                 coded_pharse = ''
                 for word in file_word_list:
                     for l in word:
-                        coded_pharse = coded_pharse + str(coding_dictionary.get(l))
+                        coded_pharse += str(coding_dictionary.get(l))
+                if (8-(len(coded_pharse) % 8)) > 0:
+                    complete_to_byte = (8-(len(coded_pharse) % 8))*'0'
+                if self.given_file_type == "bin":
+                    file_data_byte = "0000"+"0"+str(format((8-(len(coded_pharse) % 8)), '03'))
+                else:
+                    file_data_byte = "0000" + "1" + str(format((8-(len(coded_pharse) % 8)), '03'))
+                coded_pharse += complete_to_byte + file_data_byte
                 coded_pharse = [coded_pharse[i:i + 8] for i in range(0, len(coded_pharse), 8)]
                 count = 0
                 for i in coded_pharse:
@@ -114,32 +121,43 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
 
     def decompress_file(self, input_file_path):
 
-        self.decompressed_file_path = os.path.dirname(input_file_path) + '\decompressed_file.txt'
+        def check_type_of_file_from_binary_compressed_code(binary_string, input_file_path):
+            if binary_string[-4:-3] == '0':
+                type_of_file = 'bin'
+            else:
+                type_of_file = 'txt'
+            decompressed_file_path = os.path.dirname(input_file_path) + '\decompressed_file.'+ type_of_file
+            return decompressed_file_path
+
+        def write_to_decompressed_file(decompressed_path, element_string):
+            with open(decompressed_path, 'w+') as file:
+                print(element_string)
+                file.write(element_string)
 
         with open(input_file_path, 'rb') as file:
             file_word_string = file.read()
         binary_string = ''
         for binary_number in file_word_string:
-            binary_string = binary_string + format(binary_number, '08b')
-        element_string = []
+            binary_string += format(binary_number, '08b')
+
+        self.decompress_file_path = check_type_of_file_from_binary_compressed_code(binary_string, input_file_path)
+        bits_to_remove = int(binary_string[-3:], 2)
+        binary_string = binary_string[:-8-bits_to_remove]
+
+        element_string_list = []
         binary_string = list(binary_string)
-        count = -1
-        letter_count = 0
         while len(binary_string) > 0:
-            element_list = self.node_tree.binary_to_element_string(binary_string, element_string, count)
-            count = element_list[letter_count][1]-1
-            letter_count += 1
+            element_string_list = self.node_tree.binary_to_element_string(binary_string, element_string_list)
+        element_string = ''
+        element_string.join(element_string_list)
         print(element_string)
 
-
+        write_to_decompressed_file(self.decompress_file_path, element_string)
 
 
 
     def calculate_entropy(self):
         pass
-
-
-
 
 
 class Node:
@@ -162,23 +180,24 @@ class Node:
             self.right.binary_frequency = self.binary_frequency + '1'
             self.right.search_element(dictionary)
 
-    def binary_to_element_string(self, binary_string, element_string, count):
+    def binary_to_element_string(self, binary_string, element_string):
 
-        count += 1
         if self.leaf is True:
-            element_string.append((self.data, count))
+            element_string.append(self.data)
         else:
-            print(binary_string[count])
-            if binary_string[count] == '0':
-                self.left.binary_to_element_string(binary_string, element_string, count)
+            if binary_string[0] == '0':
+                binary_string.pop(0)
+                self.left.binary_to_element_string(binary_string, element_string)
             else:
-                self.right.binary_to_element_string(binary_string, element_string, count)
+                binary_string.pop(0)
+                self.right.binary_to_element_string(binary_string, element_string)
         return element_string
 
 if __name__ == '__main__':
     import time
     start = time.time()
     check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\New Text Document.txt')
+    # check1 = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
     check.decompress_file('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\compressed_file.bin')
     end = time.time()
     print(end-start)
