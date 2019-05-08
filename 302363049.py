@@ -104,9 +104,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
         self.binary_frequency_dictionary = {}
         self.compressed_file_path = self.dir_path+'\compressed_file.bin'
 
-
         while len(self.word_dictionary_list) > 1:
-            self.node = tree_build(self.word_dictionary_list)
+            self.node_tree = tree_build(self.word_dictionary_list)
             self.word_dictionary_list = sorted(self.word_dictionary_list, key=lambda x: x[1])
 
         self.coding_dictionary = create_word_binary_dictionary(self.word_dictionary_list, self.coding_dictionary)
@@ -115,12 +114,26 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):  # This is the way yo
 
     def decompress_file(self, input_file_path):
 
-        self.decompressed_file_path = os.path.dirname(input_file_path) + '\decompressed_file.bin'
+        self.decompressed_file_path = os.path.dirname(input_file_path) + '\decompressed_file.txt'
 
         with open(input_file_path, 'rb') as file:
             file_word_string = file.read()
+        binary_string = ''
         for binary_number in file_word_string:
-            print(format(binary_number, '08b'))
+            binary_string = binary_string + format(binary_number, '08b')
+        element_string = []
+        binary_string = list(binary_string)
+        count = -1
+        letter_count = 0
+        while len(binary_string) > 0:
+            element_list = self.node_tree.binary_to_element_string(binary_string, element_string, count)
+            count = element_list[letter_count][1]-1
+            letter_count += 1
+        print(element_string)
+
+
+
+
 
     def calculate_entropy(self):
         pass
@@ -141,14 +154,26 @@ class Node:
 
     def search_element(self, dictionary):
         if self.leaf is True:
-            # print(self.data, self.binary_frequency)
-            dictionary[self.data] = int(self.binary_frequency)
+            dictionary[self.data] = self.binary_frequency
             return dictionary
         else:
             self.left.binary_frequency = self.binary_frequency + '0'
             self.left.search_element(dictionary)
             self.right.binary_frequency = self.binary_frequency + '1'
             self.right.search_element(dictionary)
+
+    def binary_to_element_string(self, binary_string, element_string, count):
+
+        count += 1
+        if self.leaf is True:
+            element_string.append((self.data, count))
+        else:
+            print(binary_string[count])
+            if binary_string[count] == '0':
+                self.left.binary_to_element_string(binary_string, element_string, count)
+            else:
+                self.right.binary_to_element_string(binary_string, element_string, count)
+        return element_string
 
 if __name__ == '__main__':
     import time
