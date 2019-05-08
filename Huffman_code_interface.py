@@ -5,6 +5,7 @@ class HuffmanCoding:
         input_file_path is a string containing the path to a file which needs to be compressed
         '''
         self.compressed_file_path = None
+        self.coding_dictionary = None
 
         raise NotImplementedError
 
