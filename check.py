@@ -1,7 +1,8 @@
 import importlib
 import  os
+import time
 
-
+start = time.time()
 
 dir_name = os.path.dirname(__file__) + '/test/'
 
@@ -34,6 +35,8 @@ try:
 except Exception as e:
     print("crashed:", e)
     exit(1)
+
+# print(help(Module))
 
 ### Pre-test-filename is valid
 if ((not(File.isdigit()) or len(File)!=9) and File!="sample" ):
@@ -108,3 +111,5 @@ for original_fname in files_list:
         print("Test Number ",test_number,": crashed-", e)
         test_number += 1
 
+end = time.time()
+print(end-start)
