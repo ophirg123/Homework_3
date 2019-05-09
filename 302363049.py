@@ -394,7 +394,7 @@ if __name__ == '__main__':
     import time
 
     start = time.time()
-    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
+    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\test.txt')
     print(check.calculate_entropy())
     print(check.decompress_file('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\compressed_file.bin'))
     if ((check.calculate_entropy()) * (os.path.getsize(check.input_file_path)) / 8) < os.path.getsize(
