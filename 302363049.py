@@ -212,7 +212,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
         self.min_frequency_of_symbol = self.word_dictionary_list[0]
         self.coding_dictionary = {}
         self.binary_frequency_dictionary = {}
-        self.compressed_file_path = self.dir_path + '\compressed_file.bin'
+        self.compressed_file_path = os.path.join(self.dir_path, 'compressed_file.bin')
         # Create the tree from the element until creating the root
         if self.given_file_type == 'bin':
             while len(self.word_dictionary_list) > 1:
@@ -248,7 +248,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                 type_of_file = 'bin'
             else:
                 type_of_file = 'txt'
-            decompressed_file_path = os.path.dirname(input_file_path) + '\decompressed_file.' + type_of_file
+            decompressed_file_path = os.path.join(os.path.dirname(input_file_path), ('decompressed_file.' + type_of_file))
             return decompressed_file_path
 
         def extract_binary_string_from_file_and_create_decompress_file(input_file_path, decompress_file_path, max_length_of_binary_symbol):
@@ -394,7 +394,7 @@ if __name__ == '__main__':
     import time
 
     start = time.time()
-    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\test.txt')
+    check = HuffmanCoding('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\bible.txt')
     print(check.calculate_entropy())
     print(check.decompress_file('C:\\Users\\ophir\\PycharmProjects\\Homework_3\\compressed_file.bin'))
     if ((check.calculate_entropy()) * (os.path.getsize(check.input_file_path)) / 8) < os.path.getsize(
