@@ -180,19 +180,11 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                 # Check if the remain of the last byte is 8 bits
                 if (8 - (len(coded_pharse) % 8)) > 0 and (8 - (len(coded_pharse) % 8)) < 8:
                     complete_to_byte = (8 - (len(coded_pharse) % 8)) * '0'
-                    # Create data byte with number of completed bits and type of target file.
-                    if self.given_file_type == "bin":
-                        file_data_byte = "0000" + "0" + str(format((8 - (len(coded_pharse) % 8)), '03b'))
-                    else:
-                        file_data_byte = "0000" + "1" + str(format((8 - (len(coded_pharse) % 8)), '03b'))
+                    byte_data = str(format((8 - (len(coded_pharse) % 8)), '08b'))
                 else:
                     complete_to_byte = ''
-                    if self.given_file_type == "bin":
-                        file_data_byte = "0000" + "0" + '000'
-                    else:
-                        print(str(format((8 - (len(coded_pharse) % 8)), '03b')))
-                        file_data_byte = "0000" + "1" + '000'
-                coded_pharse += complete_to_byte + file_data_byte
+                    byte_data = '00000000'
+                coded_pharse += complete_to_byte
                 coded_pharse = [coded_pharse[i:i + 8] for i in range(0, len(coded_pharse), 8)]
                 # Add the two last bytes to the compressed file
                 count = 0
@@ -201,6 +193,10 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                     count += 1
                 arr = bytearray(coded_pharse)
                 f.write(arr)
+            with open(compressed_file_path, 'rb+') as f:
+                content = f.read()
+                f.seek(0, 0)
+                f.write((bytearray([int(byte_data[:8], 2)]))+content)
 
         self.input_file_path = input_file_path
         self.given_file_type = file_type_of_given_file_to_compress(self.input_file_path)
@@ -240,15 +236,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
 
            :param input_file_path: The path of the compressed file.
            :rtype: A: A path of the decompressed file path as string with the extension of the target file as string."""
-            with open(input_file_path, 'rb') as file:
-                file_word_string = file.read()
-            binary_string = format(file_word_string[-1], '08b')
-            # Check the type binary number in the file data byte
-            if binary_string[-4:-3] == '0':
-                type_of_file = 'bin'
-            else:
-                type_of_file = 'txt'
-            decompressed_file_path = os.path.join(os.path.dirname(input_file_path), ('decompressed_file.' + type_of_file))
+            decompressed_file_path = os.path.join(os.path.dirname(input_file_path), ('decompressed_file.' + self.given_file_type))
             return decompressed_file_path
 
         def extract_binary_string_from_file_and_create_decompress_file(input_file_path, decompress_file_path, max_length_of_binary_symbol):
@@ -269,7 +257,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
             # Write to the decompressed file
             with open(decompress_file_path, permission) as file:
                 # Converting bytes to symbols without file data symbol
-                for binary_number in file_word_string[:-2]:
+                for binary_number in file_word_string[1:-1]:
                     binary_string += format(binary_number, '08b')
                     if len(binary_string) > max_length_of_binary_symbol*3:
                         element_string = []
@@ -280,8 +268,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                             file.write(bytearray(element_string))
                         else:
                             file.write(''.join(element_string))
-                data_byte = format(file_word_string[-1], '08b')
-                last_byte = remove_extra_bits_from_compressing((format(file_word_string[-2], '08b')), data_byte)
+                data_byte = format(file_word_string[0], '08b')
+                last_byte = remove_extra_bits_from_compressing((format(file_word_string[-1], '08b')), data_byte)
                 binary_string += last_byte
                 element_string = []
                 while len(binary_string) > 0:
@@ -300,7 +288,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
            :param data_byte: The number of the extra bits.
            :param binary_string: The string with the extra bits.
            :rtype: A: The string without the extra bits as string."""
-            bits_to_remove = int(data_byte[-3:], 2)
+            bits_to_remove = int(data_byte, 2)
             if bits_to_remove != 0:
                 binary_string = binary_string[:-bits_to_remove]
             return binary_string
