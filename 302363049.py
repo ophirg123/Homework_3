@@ -161,6 +161,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
 
             # Open new file and write the binary code as bytes
             with open(compressed_file_path, 'wb') as f:
+                f.write(bytearray([0]))
                 coded_pharse = ''
                 if file_type == 'bin':
                     for number in file_word_list:
@@ -194,9 +195,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                 arr = bytearray(coded_pharse)
                 f.write(arr)
             with open(compressed_file_path, 'rb+') as f:
-                content = f.read()
-                f.seek(0, 0)
-                f.write((bytearray([int(byte_data[:8], 2)]))+content)
+                f.write((bytearray([int(byte_data[:8], 2)])))
 
         self.input_file_path = input_file_path
         self.given_file_type = file_type_of_given_file_to_compress(self.input_file_path)

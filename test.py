@@ -160,7 +160,8 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
            :param file_type: The type the target file to compress."""
 
             # Open new file and write the binary code as bytes
-            with open(compressed_file_path, 'wb',100*(2**20)) as f:
+            with open(compressed_file_path, 'wb') as f:
+                f.write(bytearray([0]))
                 coded_pharse = ''
                 if file_type == 'bin':
                     for number in file_word_list:
@@ -194,9 +195,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                 arr = bytearray(coded_pharse)
                 f.write(arr)
             with open(compressed_file_path, 'rb+') as f:
-                content = f.read()
-                f.seek(0, 0)
-                f.write((bytearray([int(byte_data[:8], 2)]))+content)
+                f.write((bytearray([int(byte_data[:8], 2)])))
 
         self.input_file_path = input_file_path
         self.given_file_type = file_type_of_given_file_to_compress(self.input_file_path)
@@ -255,7 +254,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
             else:
                 permission = 'w+'
             # Write to the decompressed file
-            with open(decompress_file_path, permission) as file:
+            with open(decompress_file_path, permission,  newline="\n") as file:
                 # Converting bytes to symbols without file data symbol
                 for binary_number in file_word_string[1:-1]:
                     binary_string += format(binary_number, '08b')
@@ -265,11 +264,9 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                             [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
                                                                                                        element_string)
                         if permission == 'wb':
-                            for i in range(len(element_string)):
-                                file.write(bytearray(element_string[i]))
+                            file.write(bytearray(element_string))
                         else:
-                            for i in range(len(element_string)):
-                                file.write(''.join(element_string[i]))
+                            file.write(''.join(element_string))
                 data_byte = format(file_word_string[0], '08b')
                 last_byte = remove_extra_bits_from_compressing((format(file_word_string[-1], '08b')), data_byte)
                 binary_string += last_byte
@@ -278,9 +275,11 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
                     [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
                                                                                                element_string)
                 if permission == 'wb':
-                    file.write(bytearray(element_string))
+                    for i in range(len(element_string)):
+                        file.write(bytearray(element_string[i]))
                 else:
-                    file.write(''.join(element_string))
+                    for i in range(len(element_string)):
+                        file.write(''.join(element_string[i]))
 
             return binary_string
 
