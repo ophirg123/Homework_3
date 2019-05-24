@@ -255,7 +255,7 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
             else:
                 permission = 'w+'
             # Write to the decompressed file
-            with open(decompress_file_path, permission) as file:
+            with open(decompress_file_path, permission,  newline="\n") as file:
                 # Converting bytes to symbols without file data symbol
                 for binary_number in file_word_string[1:-1]:
                     binary_string += format(binary_number, '08b')
