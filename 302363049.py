@@ -251,32 +251,53 @@ class HuffmanCoding(Huffman_code_interface.HuffmanCoding):
             # Check the type the target file
             if decompress_file_path.endswith('.bin'):
                 permission = 'wb'
+                # Write to the decompressed file
+                with open(decompress_file_path, permission) as file:
+                    # Converting bytes to symbols without file data symbol
+                    for binary_number in file_word_string[1:-1]:
+                        binary_string += format(binary_number, '08b')
+                        if len(binary_string) > max_length_of_binary_symbol * 3:
+                            element_string = []
+                            while len(binary_string) > max_length_of_binary_symbol * 2:
+                                [element_string, binary_string] = create_element_string_from_binary_string(
+                                    binary_string,
+                                    element_string)
+                            if permission == 'wb':
+                                file.write(bytearray(element_string))
+                            else:
+                                file.write(''.join(element_string))
+                    data_byte = format(file_word_string[0], '08b')
+                    last_byte = remove_extra_bits_from_compressing((format(file_word_string[-1], '08b')), data_byte)
+                    binary_string += last_byte
+                    element_string = []
+                    while len(binary_string) > 0:
+                        [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
+                                                                                                   element_string)
+                    file.write(bytearray(element_string))
+
             else:
                 permission = 'w+'
-            # Write to the decompressed file
-            with open(decompress_file_path, permission,  newline="\n") as file:
-                # Converting bytes to symbols without file data symbol
-                for binary_number in file_word_string[1:-1]:
-                    binary_string += format(binary_number, '08b')
-                    if len(binary_string) > max_length_of_binary_symbol*3:
-                        element_string = []
-                        while len(binary_string) > max_length_of_binary_symbol*2:
-                            [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
-                                                                                                       element_string)
-                        if permission == 'wb':
-                            file.write(bytearray(element_string))
-                        else:
-                            file.write(''.join(element_string))
-                data_byte = format(file_word_string[0], '08b')
-                last_byte = remove_extra_bits_from_compressing((format(file_word_string[-1], '08b')), data_byte)
-                binary_string += last_byte
-                element_string = []
-                while len(binary_string) > 0:
-                    [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
-                                                                                               element_string)
-                if permission == 'wb':
-                    file.write(bytearray(element_string))
-                else:
+                # Write to the decompressed file
+                with open(decompress_file_path, permission, newline="\n") as file:
+                    # Converting bytes to symbols without file data symbol
+                    for binary_number in file_word_string[1:-1]:
+                        binary_string += format(binary_number, '08b')
+                        if len(binary_string) > max_length_of_binary_symbol*3:
+                            element_string = []
+                            while len(binary_string) > max_length_of_binary_symbol*2:
+                                [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
+                                                                                                           element_string)
+                            if permission == 'wb':
+                                file.write(bytearray(element_string))
+                            else:
+                                file.write(''.join(element_string))
+                    data_byte = format(file_word_string[0], '08b')
+                    last_byte = remove_extra_bits_from_compressing((format(file_word_string[-1], '08b')), data_byte)
+                    binary_string += last_byte
+                    element_string = []
+                    while len(binary_string) > 0:
+                        [element_string, binary_string] = create_element_string_from_binary_string(binary_string,
+                                                                                                   element_string)
                     file.write(''.join(element_string))
 
             return binary_string
